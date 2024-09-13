@@ -1,11 +1,14 @@
 import requests
+import json
 from parse import parse
 
 page_number_limit = 5000
+file = open("output/output.json", "w")
 
 def build_url(min_date, max_date, page_number):
     return (
-        "https://www.jobindex.dk/jobsoegning?maxdate="
+        "https://www.jobindex.dk/jobsoegning?"
+        + "&maxdate="
         + max_date
         + "&mindate="
         + min_date
@@ -13,6 +16,10 @@ def build_url(min_date, max_date, page_number):
         + str(page_number)
         + "&archive=1"
     )
+
+def write_to_file(datapoint):
+    file.write(json.dumps(datapoint))
+    file.write(",\n")
 
 
 def scrape(max_date, min_date, page_number):
@@ -22,7 +29,7 @@ def scrape(max_date, min_date, page_number):
     page = requests.get(url)
 
     if len(page.content) > 0:
-        return parse(page.content)
+        return parse(page.content, write_to_file)
 
     return True
 
@@ -50,4 +57,6 @@ def run(page_number, min_date, max_date):
 
 
 if __name__ == '__main__':
-    run(page_number=1, min_date="20240901", max_date="20240902")
+    file.write("[\n")
+    run(page_number=1, min_date="20240801", max_date="20240901")
+    file.write("]")

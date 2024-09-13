@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from helpers import remove_blank_lines
 
-def parse(content):
+def parse(content, filewriter):
     soup = BeautifulSoup(content, "html.parser")
     job_postings_paid = soup.find_all("div", class_="jobsearch-result")
 
@@ -17,14 +17,14 @@ def parse(content):
             timestamp = get_timestamp(job)
             archive_link = get_archive_link(job)
 
-            # print({
-            #         "company": company,
-            #         "title": title,
-            #         "location": location,
-            #         "description": description,
-            #         "timestamp": timestamp,
-            #         "archive_link": archive_link,
-            #     })
+            filewriter({
+                    "company": company,
+                    "title": title,
+                    "location": location,
+                    "description": description,
+                    "timestamp": timestamp,
+                    "archive_link": archive_link,
+                })
         except:
             print(job)
             raise RuntimeError("stuff broke")
