@@ -11,5 +11,6 @@ Based on work from [Pedro Madruga](https://github.com/pmadruga/jobindex-scraper)
 
 ## Run
 
-- Set time interval in "scrape.py"
+- Set time interval and categories in "scrape.py"
+- `source .venv/bin/activate` (if not done already)
 - `python scrape.py`
