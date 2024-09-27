@@ -6,8 +6,9 @@ page_number_limit = 100
 file = open("output/output.json", "w")
 job_listings = []
 
-def build_url(min_date: str, max_date: str, page_number: int, categories: list[int]):
+def build_url(min_date: str, max_date: str, page_number: int, categories: list[int], area: list[int]):
     subid = ("").join(f"&subid={x}" for x in categories) if categories != None else ""
+    geoareaid = ("").join(f"&geoareaid={x}" for x in area) if area != None else ""
     return (
         "https://www.jobindex.dk/jobsoegning?"
         + "&maxdate="
@@ -18,6 +19,7 @@ def build_url(min_date: str, max_date: str, page_number: int, categories: list[i
         + str(page_number)
         + "&archive=1"
         + subid
+        + geoareaid
     )
 
 def write_to_file(datapoint):
@@ -26,8 +28,8 @@ def write_to_file(datapoint):
 def remember(datapoint):
     job_listings.append(datapoint)
 
-def scrape_search(max_date, min_date, page_number, categories):
-    url = build_url(min_date, max_date, page_number, categories)
+def scrape_search(max_date, min_date, page_number, categories, area):
+    url = build_url(min_date, max_date, page_number, categories, area)
 
     print("fetching data from url: {0}".format(url))
     page = requests.get(url)
@@ -49,11 +51,11 @@ def scrape_archived_listing(listing):
     return listing
 
 
-def run(page_number, min_date, max_date, categories):
+def run(page_number, min_date, max_date, categories, area):
     while page_number <= page_number_limit:
 
         is_done = scrape_search(
-            page_number=page_number, max_date=max_date, min_date=min_date, categories=categories
+            page_number=page_number, max_date=max_date, min_date=min_date, categories=categories, area=area
         )
 
         if is_done:
@@ -74,5 +76,6 @@ if __name__ == '__main__':
         page_number=1,
         min_date="20240801",
         max_date="20240901",
-        categories=[11,8,85] # Bygge- og anlægsteknik, Elektroteknik, Maskinteknik
+        categories=[11,8,85], # Bygge- og anlægsteknik, Elektroteknik, Maskinteknik
+        area=[8] # Aarhus Kommune
     )
