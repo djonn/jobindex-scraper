@@ -10,11 +10,13 @@ def parse_archive_description(content):
     except:
         return None
 
-def parse(content, callback):
+def parse(content: str) -> tuple[bool,list[object]] :
     soup = BeautifulSoup(content, "html.parser")
     job_postings = soup.find_all("div", class_="jobsearch-result")
 
     print(f"Found {len(job_postings)} postings")
+
+    result: list[object] = []
 
     for _, job in enumerate(job_postings):
 
@@ -28,7 +30,7 @@ def parse(content, callback):
             timestamp = get_timestamp(job)
             archive_link = get_archive_link(job)
 
-            callback({
+            result.append({
                     "company": company,
                     "title": title,
                     "location": location,
@@ -40,10 +42,10 @@ def parse(content, callback):
             print(job)
             raise RuntimeError("stuff broke")
 
-    return is_last_page(soup)
+    return is_last_page(soup), result
 
 
-def is_last_page(page):
+def is_last_page(page) -> bool:
     current_page = page.find("ul", class_="pagination").find_all("li", class_="active", limit=1)[0].get_text().strip()
     last_page = page.find("ul", class_="pagination").find_all(class_="page-link")[-1].get_text().strip()
     return current_page == last_page

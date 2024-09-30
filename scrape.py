@@ -3,8 +3,6 @@ import json
 from parse import parse, parse_archive_description
 
 page_number_limit = 100
-file = open("output/output.json", "w")
-job_listings = []
 
 def build_url(min_date: str, max_date: str, page_number: int, categories: list[int], area: list[int]):
     subid = ("").join(f"&subid={x}" for x in categories) if categories != None else ""
@@ -23,21 +21,20 @@ def build_url(min_date: str, max_date: str, page_number: int, categories: list[i
     )
 
 def write_to_file(datapoint):
+    file = open("output/output.json", "w")
     file.write(json.dumps(datapoint, indent=2))
 
-def remember(datapoint):
-    job_listings.append(datapoint)
-
-def scrape_search_page(max_date, min_date, page_number, categories, area):
+def scrape_search_page(max_date, min_date, page_number, categories, area) -> tuple[bool, list[object]]:
     url = build_url(min_date, max_date, page_number, categories, area)
 
     print("fetching data from url: {0}".format(url))
     page = requests.get(url)
 
     if len(page.content) > 0:
-        return parse(page.content, remember)
+        was_last_page, postings = parse(page.content)
+        return was_last_page, postings
 
-    return True
+    return True, []
 
 def scrape_archived_listing(listing):
     url = listing["archive_link"]
@@ -50,23 +47,27 @@ def scrape_archived_listing(listing):
 
 
 def scrape_search(page_number, min_date, max_date, categories, area):
+    all_listings: list[object] = []
+
     while page_number <= page_number_limit:
 
-        is_done = scrape_search_page(
+        is_done, listings_in_page = scrape_search_page(
             page_number=page_number, max_date=max_date, min_date=min_date, categories=categories, area=area
         )
 
+        all_listings = all_listings + listings_in_page
+
         if is_done:
-            print("finished scraping search")
             break
         
         page_number += 1
 
-    print(f"Found {len(job_listings)} from search")
+    print(f"Found {len(all_listings)} from search")
+    return all_listings
 
 
 if __name__ == '__main__':
-    scrape_search(
+    search_listings = scrape_search(
         page_number=1,
         min_date="20240801",
         max_date="20240901",
@@ -74,7 +75,7 @@ if __name__ == '__main__':
         area=[8] # Aarhus Kommune
     )
 
-    for listing in job_listings:
+    for listing in search_listings:
         scrape_archived_listing(listing)
 
-    write_to_file(job_listings)
+    write_to_file(search_listings)
