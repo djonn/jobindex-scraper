@@ -28,7 +28,7 @@ def write_to_file(datapoint):
 def remember(datapoint):
     job_listings.append(datapoint)
 
-def scrape_search(max_date, min_date, page_number, categories, area):
+def scrape_search_page(max_date, min_date, page_number, categories, area):
     url = build_url(min_date, max_date, page_number, categories, area)
 
     print("fetching data from url: {0}".format(url))
@@ -48,34 +48,33 @@ def scrape_archived_listing(listing):
     if len(page.content) > 0:
         listing["description"] = parse_archive_description(page.content)
 
-    return listing
 
-
-def run(page_number, min_date, max_date, categories, area):
+def scrape_search(page_number, min_date, max_date, categories, area):
     while page_number <= page_number_limit:
 
-        is_done = scrape_search(
+        is_done = scrape_search_page(
             page_number=page_number, max_date=max_date, min_date=min_date, categories=categories, area=area
         )
 
         if is_done:
-            print("DONE!")
+            print("finished scraping search")
             break
         
         page_number += 1
 
     print(f"Found {len(job_listings)} from search")
-    for listing in job_listings:
-        scrape_archived_listing(listing)
-
-    write_to_file(job_listings)
 
 
 if __name__ == '__main__':
-    run(
+    scrape_search(
         page_number=1,
         min_date="20240801",
         max_date="20240901",
         categories=[11,8,85], # Bygge- og anlægsteknik, Elektroteknik, Maskinteknik
         area=[8] # Aarhus Kommune
     )
+
+    for listing in job_listings:
+        scrape_archived_listing(listing)
+
+    write_to_file(job_listings)
