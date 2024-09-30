@@ -21,7 +21,7 @@ def build_url(min_date: str, max_date: str, page_number: int, categories: list[i
     )
 
 def write_to_file(datapoint):
-    file = open("output/output.json", "w")
+    file = open("output/scraped_data.json", "w")
     file.write(json.dumps(datapoint, indent=2))
 
 def scrape_search_page(max_date, min_date, page_number, categories, area) -> tuple[bool, list[object]]:
