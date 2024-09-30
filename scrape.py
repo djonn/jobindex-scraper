@@ -67,15 +67,28 @@ def scrape_search(page_number, min_date, max_date, categories, area):
 
 
 if __name__ == '__main__':
-    search_listings = scrape_search(
-        page_number=1,
-        min_date="20240801",
-        max_date="20240901",
-        categories=[11,8,85], # Bygge- og anlægsteknik, Elektroteknik, Maskinteknik
-        area=[8] # Aarhus Kommune
-    )
+    categories=[11,8,85] # Bygge- og anlægsteknik, Elektroteknik, Maskinteknik
+    areas=[8] # Aarhus Kommune
 
-    for listing in search_listings:
+    all_listings: list[object] = []
+
+    for category in categories:
+        for area in areas:
+            search_listings = scrape_search(
+                page_number=1,
+                min_date="20240801",
+                max_date="20240901",
+                categories=[category], # Bygge- og anlægsteknik, Elektroteknik, Maskinteknik
+                area=[area] # Aarhus Kommune
+            )
+            for listing in search_listings:
+                listing["category"] = category
+                listing["area"] = area
+
+            all_listings = all_listings + search_listings
+
+
+    for listing in all_listings:
         scrape_archived_listing(listing)
 
-    write_to_file(search_listings)
+    write_to_file(all_listings)
