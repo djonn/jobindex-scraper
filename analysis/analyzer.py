@@ -1,13 +1,14 @@
-import os
+from os import path, makedirs
 import json
 import re
 
-path = os.path.dirname(os.path.abspath(__file__))
-wordlist_path = path + "/cor1.02.tsv"
-categories_path = path + "/category_to_subid_mapping.json"
-listings_path = path + "/../output" + "/scraped_data.json"
-result_path = path + "/../output" + "/adjective_counts_by_category.json"
+file_path = path.dirname(path.abspath(__file__))
+wordlist_path = path.join(file_path, "cor1.02.tsv")
+categories_path = path.join(file_path, "category_to_subid_mapping.json")
 
+export_path = path.abspath(path.join(file_path, path.pardir, "output"))
+listings_path = path.join(export_path, "scraped_data.json")
+result_path = path.join(export_path, "adjective_counts_by_category.json")
 
 def create_adjective_lookup():
     adjective_lookup = {}
@@ -45,6 +46,7 @@ def load_listings():
 
 
 def write_to_file(datapoint):
+    makedirs(path.dirname(result_path), exist_ok=True)
     file = open(result_path, "w")
     file.write(json.dumps(datapoint, indent=2, ensure_ascii=False))
 

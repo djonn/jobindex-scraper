@@ -1,8 +1,13 @@
 import requests
 import json
 from parse import parse, parse_archive_description
+from os import path, makedirs
 
 page_number_limit = 100
+
+file_path = path.dirname(path.abspath(__file__))
+export_path = path.abspath(path.join(file_path, path.pardir, "output"))
+result_path = path.join(export_path, "scraped_data.json")
 
 def build_url(min_date: str, max_date: str, page_number: int, categories: list[int], area: list[int]):
     subid = ("").join(f"&subid={x}" for x in categories) if categories != None else ""
@@ -21,7 +26,8 @@ def build_url(min_date: str, max_date: str, page_number: int, categories: list[i
     )
 
 def write_to_file(datapoint):
-    file = open("output/scraped_data.json", "w")
+    makedirs(path.dirname(result_path), exist_ok=True)
+    file = open(result_path, "w")
     file.write(json.dumps(datapoint, indent=2))
 
 def scrape_search_page(max_date, min_date, page_number, categories, area) -> tuple[bool, list[object]]:
