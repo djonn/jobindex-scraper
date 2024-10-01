@@ -75,15 +75,25 @@ def count(words: list[str]) -> object:
 
 def analyze(listings, lookup):
     category_adjectives = {}
+
+    i=0
+    n=len(listings)
+
     for listing in listings:
+        i=i+1
+        print(f"({i}/{n}) Analysing \"{listing['title']}\"")
+
         adjectives = find_adjectives(listing, lookup)
         combined = category_adjectives.get(listing["category"], []) + adjectives
         category_adjectives[listing["category"]] = combined
+
+    print()
 
     category_adjectives_counted = {}
     for category in category_adjectives:
         adjectives_counted = count(category_adjectives[category])
         category_adjectives_counted[category] = adjectives_counted
+        print(f"\"{category}\" contains {len(category_adjectives[category])} adjectives with {len(adjectives_counted)} being unique")
 
     return category_adjectives_counted
 
